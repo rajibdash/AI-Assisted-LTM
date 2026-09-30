@@ -466,3 +466,7 @@ RAN3 recommends __multi-hop UE trajectory__, __AI/ML-assisted intra-CU LTM__, an
 | 2026-03 | RAN#111 | RP-260263 | Submitted for approval | 2.0.0 |
 | 2026-03 | RAN#111 | — | Approved by RAN plenary | 20.0.0 |
 
+## 15. References
+
+* https://www.sharetechnote.com/html/5G/5G_LTM.html
+
