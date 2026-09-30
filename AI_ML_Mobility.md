@@ -469,4 +469,5 @@ RAN3 recommends __multi-hop UE trajectory__, __AI/ML-assisted intra-CU LTM__, an
 ## 15. References
 
 * https://www.sharetechnote.com/html/5G/5G_LTM.html
+* https://www.ericsson.com/en/blog/2024/8/5g-advanced-handover-triggered-mobility
 
