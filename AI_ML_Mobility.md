@@ -1,4 +1,4 @@
-# AI/ML-Assisted Mobility Design for NG-RAN
+# AI/ML-Assisted Mobility Design for NG-RAN (LTM Handover - Intra-CU/gNB and Inter-CU/gNB improvement)
 
 **Source baseline:** 3GPP TR 38.745 V20.0.0 (Release 20, March 2026)
 
