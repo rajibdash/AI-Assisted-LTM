@@ -449,7 +449,7 @@ flowchart TD
 
 ## 13. Conclusion
 
-RAN3 recommends multi-hop UE trajectory, AI/ML-assisted intra-CU LTM, and AI/ML-assisted inter-CU LTM for Release 20 normative work. The practical impact is an AI/ML decision layer in or managed by the gNB-CU, new or extended F1 transfer for intra-CU data, Xn transfer for multi-hop trajectory and inter-CU support, earlier UL synchronization, improved candidate and beam selection, and closed-loop feedback. Production design must preserve baseline mobility, enforce freshness and policy constraints, and provide complete observability and rollback.
+RAN3 recommends __multi-hop UE trajectory__, __AI/ML-assisted intra-CU LTM__, and __AI/ML-assisted inter-CU LTM__ for __Release 20__ normative work. The practical impact is an **AI/ML decision layer in or managed by the gNB-CU**, **new or extended F1 transfer for intra-CU data**, **Xn transfer for multi-hop trajectory** and **inter-CU support**, **earlier UL synchronization**, **improved candidate and beam selection**, and **closed-loop feedback**. Production design must preserve baseline mobility, enforce freshness and policy constraints, and provide complete observability and rollback.
 
 ## 14. Annex A — Change History
 
