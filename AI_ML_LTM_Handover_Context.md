@@ -1,6 +1,6 @@
 # AI/ML-Enhanced L1/L2 Triggered Mobility (LTM) Context
 
-This technical document outlines the integration of **AI/ML models** with **Layer 1/Layer 2 Triggered Mobility (LTM)** as studied under **3GPP TR 38.745 (Release 20)**. It details the operational impacts on the MAC and UPC schedulers, alongside performance gains in Handover Interruption Time (HIT).
+This technical document outlines the integration of **AI/ML models** with **Layer 1/Layer 2 Triggered Mobility (LTM)** as studied under **3GPP TR 38.745 (Release 20)**. It details the operational impacts on the MAC and UPC schedulers, alongside performance gains in Handover Interruption Time (HOIT).
 
 ---
 
