@@ -36,6 +36,15 @@ contains proposals that must not be read as normative requirements.
 │       ├── 38745-k00.pdf
 │       ├── AI_ML_LTM_Handover_Analysis.pdf
 │       └── reducing-handover-interruption-l1l2-triggered-mobility.pdf
+├── native/
+│   ├── CMakeLists.txt
+│   ├── include/ltm_native/
+│   │   └── mobility_score.hpp
+│   ├── src/
+│   │   ├── bindings.cpp
+│   │   └── mobility_score.cpp
+│   └── tests/
+│       └── test_mobility_score.cpp
 ├── src/ltm_agent/
 │   ├── __init__.py
 │   ├── __main__.py
@@ -45,11 +54,14 @@ contains proposals that must not be read as normative requirements.
 │   ├── data.py
 │   ├── evaluation.py
 │   ├── model.py
+│   ├── native_scorer.py
 │   └── training.py
 ├── tests/
-│   └── test_ltm_agent.py
+│   ├── test_ltm_agent.py
+│   └── test_native_scorer.py
 ├── LICENSE
 ├── pyproject.toml
+├── setup.py
 └── README.md
 ```
 
@@ -70,12 +82,57 @@ python -m pip install -e .
 
 On Windows PowerShell, activate with `.venv\Scripts\Activate.ps1`.
 
+Installing in editable mode also compiles the optional `ltm_native` C++
+extension described below (a C++17 compiler is required; `pybind11` is
+installed automatically as a build dependency).
+
 ## Test
 
 The tests use Python's built-in `unittest` runner:
 
 ```sh
 python -m unittest discover -s tests -v
+```
+
+## Python↔C++ binding (`ltm_native`)
+
+`native/` contains a small, self-contained C++ component — a heuristic
+"handover-candidate" pre-filter (`ltm_native::HandoverScorer`) — exposed to
+Python as the `ltm_native` extension module via
+[pybind11](https://github.com/pybind/pybind11). It uses the same two
+mobility features as the rest of the experiment (`neighbor_margin_db`,
+`target_load`) and the same validation rules, but is a separate, explicit
+heuristic — not the trained model in `src/ltm_agent/model.py`. Like the rest
+of this repository it is advisory-only.
+
+```text
+native/
+├── CMakeLists.txt              # native-only build for the C++ unit test
+├── include/ltm_native/
+│   └── mobility_score.hpp      # public C++ interface (HandoverScorer, validation)
+├── src/
+│   ├── mobility_score.cpp      # scorer implementation
+│   └── bindings.cpp            # thin pybind11 adapter -> `ltm_native` module
+└── tests/
+    └── test_mobility_score.cpp # native C++ tests (no Python required)
+```
+
+`src/ltm_agent/native_scorer.py` is the Python wrapper that imports
+`ltm_native` and exposes `native_recommend(features, threshold=0.5)`; it
+raises a clear `ImportError` if the extension was never built. Python-level
+behavior (success and edge/error cases) is covered by
+`tests/test_native_scorer.py`, which exercises the compiled extension
+through that wrapper.
+
+```sh
+# Build and use from Python (also done by `pip install -e .`):
+python -m pip install -e .
+python -c "import ltm_native; print(ltm_native.HandoverScorer().evaluate(8.0, 0.2))"
+
+# Run only the native C++ tests, independent of Python:
+cmake -S native -B native/build
+cmake --build native/build
+ctest --test-dir native/build --output-on-failure
 ```
 
 ## Run the local training/inference/evaluation demo
