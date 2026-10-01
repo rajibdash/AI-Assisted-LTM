@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(ltm_native_core STATIC
     src/mobility_score.cpp
+    src/trajectory.cpp
 )
 target_include_directories(ltm_native_core PUBLIC include)
 
@@ -20,3 +21,8 @@ add_executable(ltm_native_tests tests/test_mobility_score.cpp)
 target_link_libraries(ltm_native_tests PRIVATE ltm_native_core)
 
 add_test(NAME ltm_native_tests COMMAND ltm_native_tests)
+
+add_executable(ltm_native_trajectory_tests tests/test_trajectory.cpp)
+target_link_libraries(ltm_native_trajectory_tests PRIVATE ltm_native_core)
+
+add_test(NAME ltm_native_trajectory_tests COMMAND ltm_native_trajectory_tests)

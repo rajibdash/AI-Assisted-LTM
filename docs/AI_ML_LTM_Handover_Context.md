@@ -97,6 +97,16 @@ choices; they are not 3GPP requirements or radio-performance evidence. The
 prototype does not generate or send RRC/MAC messages, operate a MAC/UPC
 scheduler, or claim a handover-time improvement.
 
+A native `ltm_native` C++ extension (`native/`, wrapped by
+`src/ltm_agent/native_scorer.py` and `src/ltm_agent/mobility_context.py`)
+additionally models a simplified multi-hop trajectory window, AI/ML
+model-placement metadata, structured candidate recommendations with
+decision reasons and confidence, and a local feedback-history record. See
+[`AUDIT_38745_TRACEABILITY.md`](AUDIT_38745_TRACEABILITY.md) for the exact
+clause/page mapping between these code elements and the report, and for
+which concepts (beams, TA, trigger timing, SON reports, F1/Xn procedures)
+are intentionally out of scope.
+
 See the [main README](../README.md) for setup, tests, execution and the
 repository layout. The longer [experimental design note](AI_ML_Mobility.md)
 contains additional implementation proposals; read those as design material,
