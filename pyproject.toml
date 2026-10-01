@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=78.1.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-assisted-ltm"
+version = "0.1.0"
+description = "Dependency-light synthetic AI/ML mobility experiment"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+ltm-agent = "ltm_agent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

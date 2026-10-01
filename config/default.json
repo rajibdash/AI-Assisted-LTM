@@ -1,0 +1,8 @@
+{
+  "seed": 7,
+  "samples": 160,
+  "train_fraction": 0.8,
+  "epochs": 800,
+  "learning_rate": 0.1,
+  "decision_threshold": 0.5
+}

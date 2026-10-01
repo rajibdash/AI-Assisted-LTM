@@ -2,11 +2,11 @@
 
 **Source baseline:** 3GPP TR 38.745 V20.0.0 (Release 20, March 2026)
 
-**Status:** Engineering interpretation of a study report. The source recommends normative work; exact protocol procedures, information elements, timers, fallback rules, and model-management requirements remain subject to specification.
+**Status:** This is an engineering proposal based on a study report, not a 3GPP specification or an implementation requirement. TR 38.745 recommends the use cases for Rel-20 normative work; its candidate solutions and information are not, by themselves, normative. Exact procedures, information elements, timers, fallback rules, and model-management requirements remain subject to specification.
 
 ## Document Purpose
 
-This Markdown document consolidates every substantive section of TR 38.745 and translates the study findings into an implementable design flow for multi-hop UE trajectory, AI/ML-assisted intra-CU L1/L2 Triggered Mobility (LTM), and AI/ML-assisted inter-CU LTM.
+This Markdown document summarizes the relevant TR 38.745 study material and proposes an experimental design flow for multi-hop UE trajectory, AI/ML-assisted intra-CU L1/L2 Triggered Mobility (LTM), and AI/ML-assisted inter-CU LTM. Sections labeled as design, processing, or flow are proposals, not 3GPP-defined behavior.
 
 ## Table of Contents
 
@@ -36,9 +36,10 @@ This design preserves existing LTM control procedures and introduces AI/ML as an
 
 ## 2. References
 
-1. 3GPP TR 21.905, *Vocabulary for 3GPP Specifications*.
-2. 3GPP TS 38.300, *NR; NR and NG-RAN Overall Description*.
-3. 3GPP TS 38.401, *NG-RAN; Architecture Description*.
+1. [3GPP TR 38.745 V20.0.0, *Study on Artificial Intelligence (AI)/Machine Learning (ML) for NG-RAN Phase 3*, Release 20 (March 2026)](../standards/references/38745-k00.pdf).
+2. 3GPP TR 21.905, *Vocabulary for 3GPP Specifications*.
+3. 3GPP TS 38.300, *NR; NR and NG-RAN Overall Description*.
+4. 3GPP TS 38.401, *NG-RAN; Architecture Description*.
 
 References are specific or non-specific as defined by 3GPP drafting practice. A non-specific 3GPP reference resolves to the latest version in the same Release as this design baseline.
 
@@ -119,7 +120,7 @@ Release 18 cell-based trajectory information is limited to the first-hop target 
 
 ### 5.2 Training and Inference Placement
 
-Supported deployment options are:
+Training and inference placements considered by the study are:
 
 - Training in OAM; inference in the gNB.
 - Training and inference in the gNB.
@@ -449,7 +450,7 @@ flowchart TD
 
 ## 13. Conclusion
 
-RAN3 recommends __multi-hop UE trajectory__, __AI/ML-assisted intra-CU LTM__, and __AI/ML-assisted inter-CU LTM__ for __Release 20__ normative work. The practical impact is an **AI/ML decision layer in or managed by the gNB-CU**, **new or extended F1 transfer for intra-CU data**, **Xn transfer for multi-hop trajectory** and **inter-CU support**, **earlier UL synchronization**, **improved candidate and beam selection**, and **closed-loop feedback**. Production design must preserve baseline mobility, enforce freshness and policy constraints, and provide complete observability and rollback.
+RAN3 recommends __multi-hop UE trajectory__, __AI/ML-assisted intra-CU LTM__, and __AI/ML-assisted inter-CU LTM__ for __Release 20__ normative work (TR 38.745, clause 5). The report studies candidate AI/ML placements, information, and possible F1/Xn impacts; it does not define the detailed architecture and operational safeguards proposed in this document. Any implementation should treat these proposals as experimental until specified and validated.
 
 ## 14. Annex A — Change History
 
@@ -473,4 +474,3 @@ RAN3 recommends __multi-hop UE trajectory__, __AI/ML-assisted intra-CU LTM__, an
 * https://www.ericsson.com/en/blog/2025/12/one-step-closer-to-zero-latency-handovers-on-the-path-to-6g
 * https://ieeexplore.ieee.org/document/10744020 (Rel18)
 * https://ieeexplore.ieee.org/document/10817289 (Baseline for 6G)
-
