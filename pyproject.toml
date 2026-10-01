@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=78.1.1"]
+requires = ["setuptools>=78.1.1", "pybind11>=2.11"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,6 +8,10 @@ version = "0.1.0"
 description = "Dependency-light synthetic AI/ML mobility experiment"
 requires-python = ">=3.10"
 dependencies = []
+
+[project.optional-dependencies]
+# Only needed to build the optional `ltm_native` C++ extension in `native/`.
+native = ["pybind11>=2.11"]
 
 [project.scripts]
 ltm-agent = "ltm_agent.cli:main"

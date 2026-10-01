@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Native C++ build directory (see native/CMakeLists.txt)
+native/build/
+
 # Distribution / packaging
 .Python
 build/
