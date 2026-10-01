@@ -21,6 +21,7 @@ ext_modules = [
         sources=[
             "native/src/bindings.cpp",
             "native/src/mobility_score.cpp",
+            "native/src/trajectory.cpp",
         ],
         include_dirs=["native/include"],
         cxx_std=17,

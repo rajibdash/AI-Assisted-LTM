@@ -18,7 +18,10 @@ improvements, elimination of TTT, direct AI control of MAC CEs or TCI, or a
 “UPC Scheduler.” Existing LTM and intra-CU LTM are referenced to TS 38.300 and
 TS 38.401 respectively; see the [standards handover](docs/AI_ML_LTM_Handover_Context.md)
 for details and page references. The [experimental design note](docs/AI_ML_Mobility.md)
-contains proposals that must not be read as normative requirements.
+contains proposals that must not be read as normative requirements. The
+[audit/traceability note](docs/AUDIT_38745_TRACEABILITY.md) maps which of
+these concepts are represented in code, which are intentionally out of
+scope and why, with exact clause/page references.
 
 ## Repository layout
 
@@ -29,7 +32,8 @@ contains proposals that must not be read as normative requirements.
 │   └── default.json
 ├── docs/
 │   ├── AI_ML_LTM_Handover_Context.md
-│   └── AI_ML_Mobility.md
+│   ├── AI_ML_Mobility.md
+│   └── AUDIT_38745_TRACEABILITY.md
 ├── standards/
 │   └── references/
 │       ├── 38321-j40_MAC Spec.pdf
@@ -39,12 +43,15 @@ contains proposals that must not be read as normative requirements.
 ├── native/
 │   ├── CMakeLists.txt
 │   ├── include/ltm_native/
-│   │   └── mobility_score.hpp
+│   │   ├── mobility_score.hpp
+│   │   └── trajectory.hpp
 │   ├── src/
 │   │   ├── bindings.cpp
-│   │   └── mobility_score.cpp
+│   │   ├── mobility_score.cpp
+│   │   └── trajectory.cpp
 │   └── tests/
-│       └── test_mobility_score.cpp
+│       ├── test_mobility_score.cpp
+│       └── test_trajectory.cpp
 ├── src/ltm_agent/
 │   ├── __init__.py
 │   ├── __main__.py
@@ -53,11 +60,13 @@ contains proposals that must not be read as normative requirements.
 │   ├── config.py
 │   ├── data.py
 │   ├── evaluation.py
+│   ├── mobility_context.py
 │   ├── model.py
 │   ├── native_scorer.py
 │   └── training.py
 ├── tests/
 │   ├── test_ltm_agent.py
+│   ├── test_mobility_context.py
 │   └── test_native_scorer.py
 ├── LICENSE
 ├── pyproject.toml
@@ -96,38 +105,65 @@ python -m unittest discover -s tests -v
 
 ## Python↔C++ binding (`ltm_native`)
 
-`native/` contains a small, self-contained C++ component — a heuristic
-"handover-candidate" pre-filter (`ltm_native::HandoverScorer`) — exposed to
-Python as the `ltm_native` extension module via
-[pybind11](https://github.com/pybind/pybind11). It uses the same two
-mobility features as the rest of the experiment (`neighbor_margin_db`,
-`target_load`) and the same validation rules, but is a separate, explicit
-heuristic — not the trained model in `src/ltm_agent/model.py`. Like the rest
-of this repository it is advisory-only.
+`native/` contains two layers of C++ business logic exposed to Python as the
+single `ltm_native` extension module via
+[pybind11](https://github.com/pybind/pybind11):
+
+1. A heuristic "handover-candidate" pre-filter (`ltm_native::HandoverScorer`,
+   in `mobility_score.{hpp,cpp}`). It uses the same two mobility features as
+   the rest of the experiment (`neighbor_margin_db`, `target_load`) and the
+   same validation rules, but is a separate, explicit heuristic — not the
+   trained model in `src/ltm_agent/model.py`.
+2. A richer trajectory/recommendation domain model
+   (`ltm_native::MobilityObservation`, `TrajectoryWindow`, `ModelPlacement`,
+   `CandidateRecommendation`, `FeedbackRecord`, `LtmRecommender`, in
+   `trajectory.{hpp,cpp}`) that models a few more TR 38.745 concepts: a
+   simplified multi-hop trajectory (an ordered window of per-cell
+   observations), AI/ML model-placement metadata, a structured recommendation
+   with decision `reasons` and `confidence`, and a local, in-memory feedback
+   history. See [`docs/AUDIT_38745_TRACEABILITY.md`](docs/AUDIT_38745_TRACEABILITY.md)
+   for the exact clause/page mapping and what is intentionally out of scope.
+
+Like the rest of this repository, both layers are advisory-only and
+implement no 3GPP radio procedure.
 
 ```text
 native/
-├── CMakeLists.txt              # native-only build for the C++ unit test
+├── CMakeLists.txt              # native-only build for the C++ unit tests
 ├── include/ltm_native/
-│   └── mobility_score.hpp      # public C++ interface (HandoverScorer, validation)
+│   ├── mobility_score.hpp      # public C++ interface (HandoverScorer, validation)
+│   └── trajectory.hpp          # observation/window/recommender domain model
 ├── src/
 │   ├── mobility_score.cpp      # scorer implementation
+│   ├── trajectory.cpp          # domain model implementation
 │   └── bindings.cpp            # thin pybind11 adapter -> `ltm_native` module
 └── tests/
-    └── test_mobility_score.cpp # native C++ tests (no Python required)
+    ├── test_mobility_score.cpp # native C++ tests for HandoverScorer
+    └── test_trajectory.cpp     # native C++ tests for the domain model
 ```
 
-`src/ltm_agent/native_scorer.py` is the Python wrapper that imports
-`ltm_native` and exposes `native_recommend(features, threshold=0.5)`; it
-raises a clear `ImportError` if the extension was never built. Python-level
-behavior (success and edge/error cases) is covered by
-`tests/test_native_scorer.py`, which exercises the compiled extension
-through that wrapper.
+`src/ltm_agent/native_scorer.py` is the Python wrapper around
+`HandoverScorer`: it imports `ltm_native` and exposes
+`native_recommend(features, threshold=0.5)`. `src/ltm_agent/mobility_context.py`
+is the ergonomic wrapper around the trajectory/recommender domain model
+(`MobilityObservation`, `TrajectoryWindow`, `LtmRecommender`,
+`FeedbackRecord`, `ModelPlacement`, `CandidateRecommendation`); its plain
+dataclasses validate and aggregate data even without the compiled extension,
+while `LtmRecommender` requires it. Both wrappers raise a clear `ImportError`
+if the extension was never built. Python-level behavior (success, boundary,
+malformed input, feedback, and unavailable-extension cases) is covered by
+`tests/test_native_scorer.py` and `tests/test_mobility_context.py`, which
+exercise the compiled extension through these wrappers.
 
 ```sh
 # Build and use from Python (also done by `pip install -e .`):
 python -m pip install -e .
 python -c "import ltm_native; print(ltm_native.HandoverScorer().evaluate(8.0, 0.2))"
+python -c "
+from ltm_agent import mobility_context as mc
+recommender = mc.LtmRecommender()
+print(recommender.recommend(mc.MobilityObservation('cell-1', 8.0, 0.2, 0)))
+"
 
 # Run only the native C++ tests, independent of Python:
 cmake -S native -B native/build
