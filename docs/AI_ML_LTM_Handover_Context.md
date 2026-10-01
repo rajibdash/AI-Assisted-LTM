@@ -1,38 +1,103 @@
-# AI/ML-Enhanced L1/L2 Triggered Mobility (LTM) Context
+# Release 20 AI/ML-assisted LTM: standards handover
 
-This technical document outlines the integration of **AI/ML models** with **Layer 1/Layer 2 Triggered Mobility (LTM)** as studied under **3GPP TR 38.745 (Release 20)**. It details the operational impacts on the MAC and UPC schedulers, alongside performance gains in Handover Interruption Time (HOIT).
+## Status and source
 
----
+This handover summarizes the study in [3GPP TR 38.745 V20.0.0, *Study on
+Artificial Intelligence (AI)/Machine Learning (ML) for NG-RAN Phase 3*,
+Release 20 (March 2026)](../standards/references/38745-k00.pdf). Page references
+below are the printed 3GPP page numbers.
 
-## 1. Impact on the MAC Scheduler
-The **MAC Scheduler** handles physical layer time-frequency resource allocation for active User Equipments (UEs). In standard Release 18 LTM, cell switches rely on a lightweight **MAC Control Element (MAC CE)** command rather than heavy Layer 3 RRC Reconfiguration messages. 
+TR 38.745 is a **technical report**, not an implementation specification. Its
+cover says it has not been approved for implementation and is provided for
+future 3GPP work; clause 5 recommends the studied use cases as a baseline for
+the Rel-20 normative phase. The report describes study scope, possible
+solutions, candidate information and potential standard impacts. It does not,
+by itself, make the AI/ML functions or the candidate information normative.
+The report points to TS 38.300 for LTM and TS 38.401 for intra-CU LTM
+(clause 4.2.1, printed p. 6).
 
-When AI/ML models are integrated (per TR 38.745), the MAC Scheduler undergoes key operational optimizations:
-*   **Predictive Buffer & Resource Allocation:** By forecasting the UE’s multi-hop trajectory, the target gNB's MAC Scheduler pre-allocates dedicated scheduling blocks and prioritizes the incoming UE *before* the actual cell switch request occurs.
-*   **Optimal MAC CE Scheduling:** AI engines filter out temporary signal drops caused by fast-fading anomalies. This ensures the source MAC scheduler sends the LTM cell-switch MAC CE at the exact optimal window, preventing command loss during channel degradation.
-*   **Dynamic Beam/CSI-RS Preparation:** AI models assist in predicting the best candidate beam configuration. The MAC scheduler maps the exact Transmission Configuration Indicator (TCI) state immediately upon the cell switch, entirely bypassing scheduling dead-time for beam sweeping.
+## What the report studies
 
----
+### Multi-hop UE trajectory
 
-## 2. Impact on the UPC Scheduler (User Plane Control)
-The **User Plane Control (UPC) Scheduler** manages packet classification, buffering, and Quality of Service (QoS) guarantees across split-architectures (gNB-CU and gNB-DU).
-*   **Proactive Packet Bi-Casting/Forwarding:** Using the AI-predicted target candidate cell, the UPC scheduler initiates selective packet forwarding or dual-connectivity bi-casting in advance. Data resides at the target buffer prior to the L1/L2 switch execution, eliminating traditional buffering queues.
-*   **Minimized PDCP/RLC Data Recovery:** A highly synchronized, predictive switch leads to fewer broken user plane sessions. The UPC scheduler experiences a major reduction in Packet Data Convergence Protocol (PDCP) data recovery overhead and Radio Link Control (RLC) retransmissions.
+The Rel-18 cell-based UE trajectory prediction and measurement described in
+the report are limited to the first-hop target NG-RAN node. The Rel-20 study
+considers predicted and measured trajectories as chronologically ordered lists
+of cells across gNBs (clause 4.1.1, p. 5).
 
----
+Candidate training/inference placements are OAM training with gNB inference,
+or training and inference in the gNB; CU-DU variants place inference, or both
+training and inference, in the gNB-CU. Candidate inputs include serving- and
+neighbour-cell measurements, UE mobility history, UE history from neighbouring
+RAN nodes, and locally measured multi-hop trajectory. Candidate output is the
+ordered predicted cell list with expected residence time per cell; measured
+trajectory at visited gNBs is feedback (clauses 4.1.2.1–4.1.2.4, pp. 5–6).
 
-## 3. Handover Interruption Time (HIT) Gains
-Integrating AI/ML predictive engines eliminates the standard Time-To-Trigger (TTT) window by forecasting stable measurement events before they occur. 
+The study describes transferring the prediction in Xn Handover Preparation,
+and collecting/reporting subsequent measured trajectory through Data Collection
+Reporting procedures (clause 4.1.2.5, p. 6). These are study solutions and
+potential standard impacts, not claims that this report alone defines deployed
+message formats or behavior.
 
-| Mobility Protocol | Handover Interruption Time (HIT) | Core Driving Mechanism |
-| :--- | :--- | :--- |
-| **Legacy L3 Handover** | **50ms – 90ms** | Reactive L3 RRC Signaling, measurement reports, full protocol stack reset, and post-switch Random Access. |
-| **Standard L1/L2 LTM** | **20ms – 30ms** | Target cells are preconfigured. Switching relies on fast lower-layer MAC CE signaling with early DL/UL synchronization. |
-| **AI/ML-Enhanced LTM** | **~0ms – Sub-10ms** | AI models bypass the TTT window. Proactive target preparation ensures near-instantaneous MAC-CE execution and seamless beam alignment. |
+### AI/ML-assisted intra-CU LTM
 
----
+The study considers AI/ML optimization of intra-CU LTM, including L3- and
+L1-measurement-based LTM with inference in the gNB-CU. Candidate placements are
+OAM training with gNB-CU inference, or both in the gNB-CU (clauses 4.2.1 and
+4.2.2.1, p. 6).
 
-## 4. Key AI Study Areas (3GPP TR 38.745)
-*   **Multi-hop UE Trajectory across gNBs:** Prepares multiple target cells sequentially along a predicted movement path.
-*   **Intra-CU LTM:** Optimizes L1/L2 Triggered Mobility within the same Central Unit.
-*   **Inter-CU LTM:** Manages predictive context transfers and candidate cell preparation across distinct Central Units.
+Candidate inputs include L3 results, UE history, measured/predicted per-cell or
+SSB-area resource status and cell-based trajectory, historical candidate-cell
+and beam lists, measured TA, UE reports and mobility history (clause 4.2.2.2,
+p. 6). Candidate outputs include cells/beams for LTM preparation and cell
+switch, cells/beams and TA for early UL synchronization, trigger timing for
+L3-measurement-based LTM, the best beam for the first predicted trajectory
+cell, and TA validity time (clause 4.2.2.3, p. 7). Feedback candidates include
+the selected target cell/beam, measured TA, SON reports, and cell-switch and
+early-UL-synchronization execution timing (clause 4.2.2.4, p. 7).
+
+The report specifically leaves applicability of predicted TA validity time to
+measured and/or predicted TA for assessment in the normative phase. It expects
+F1 impacts, if applicable, to transfer the listed input, output and feedback
+information (clause 4.2.2.5, p. 7).
+
+### AI/ML-assisted inter-CU LTM
+
+The report identifies candidate-cell selection as an example of AI/ML
+optimization for inter-CU LTM. For potential solutions and impacts, it refers
+to the intra-CU study where applicable, with standards impacts over Xn
+(clauses 4.3.1–4.3.2, p. 7). It does not specify a detailed inter-CU model,
+algorithm, or procedure.
+
+## Boundaries: study facts versus implementation proposals
+
+The following distinctions are important when using this handover:
+
+| Topic | What TR 38.745 supports | Not established by this report |
+| --- | --- | --- |
+| Scope | Multi-hop UE trajectory, AI/ML-assisted intra-CU LTM, and AI/ML-assisted inter-CU LTM are recommended for Rel-20 normative work (clauses 1 and 5, pp. 4, 8). | A completed normative AI/ML feature or a deployed implementation. |
+| LTM procedures | LTM and intra-CU LTM are specified by the referenced TS 38.300 and TS 38.401 (clause 4.2.1, p. 6). | That AI/ML replaces or controls existing standardized procedures. |
+| AI outputs | Candidate cells/beams, TA-related values and certain timing predictions are studied for intra-CU LTM (clause 4.2.2.3, p. 7). | Direct AI control of MAC CEs, TCI state, a MAC scheduler, or packet forwarding. |
+| Performance | The report lists use cases and candidate solutions. | Any numeric handover-interruption-time (HIT) gain, “~0 ms” result, guaranteed sub-10-ms result, or elimination of Time-To-Trigger (TTT). |
+| Terminology | The report refers to gNB/gNB-CU, OAM, F1, Xn and the listed mobility data. | A “UPC Scheduler” or other non-standard architecture invented for this document. |
+
+TR 38.745 contains no HIT ranges or claim that AI/ML eliminates TTT. Any
+performance values or mechanisms proposed by an implementation must therefore
+be identified as separately sourced experimental results, not attributed to
+this report.
+
+## Experimental implementation in this repository
+
+The accompanying Python package is an **illustrative, local experiment**, not
+an implementation of TR 38.745 or a radio-protocol stack. It trains a small
+classifier on deterministic synthetic features and emits an advisory
+recommendation for demonstration and testing. Its feature definitions,
+synthetic labels, model, decision threshold and reported metrics are project
+choices; they are not 3GPP requirements or radio-performance evidence. The
+prototype does not generate or send RRC/MAC messages, operate a MAC/UPC
+scheduler, or claim a handover-time improvement.
+
+See the [main README](../README.md) for setup, tests, execution and the
+repository layout. The longer [experimental design note](AI_ML_Mobility.md)
+contains additional implementation proposals; read those as design material,
+not normative TR 38.745 text.
