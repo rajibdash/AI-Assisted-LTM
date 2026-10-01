@@ -23,6 +23,29 @@ contains proposals that must not be read as normative requirements. The
 these concepts are represented in code, which are intentionally out of
 scope and why, with exact clause/page references.
 
+## Presenter deck
+
+The repository includes a Marp Markdown source for the Rel-20 technical
+presentation:
+
+- [AI-Assisted LTM Rel-20 — Presenter Edition](docs/AI_Assisted_LTM_Rel20_Presenter_Edition.md)
+
+The source covers the proposed AI/ML-assisted candidate-cell ranking,
+confidence-based Top-1/Top-K preparation policy, CU/L3/MAC/UPC/L1 impacts,
+AI/ML interface contract, MLOps lifecycle, KPI framework, validation matrix,
+and rollout guardrails. It is a design proposal and presentation artifact;
+it does not add a normative 3GPP implementation to this repository.
+
+A `.pptx` export is not committed. To generate one locally, install the Marp
+CLI and run:
+
+```sh
+npm install -g @marp-team/marp-cli
+marp docs/AI_Assisted_LTM_Rel20_Presenter_Edition.md \\
+  --pptx \\
+  -o docs/AI_Assisted_LTM_Rel20_Presenter_Edition.pptx
+```
+
 ## Repository layout
 
 ```text
@@ -31,6 +54,7 @@ scope and why, with exact clause/page references.
 ├── config/
 │   └── default.json
 ├── docs/
+│   ├── AI_Assisted_LTM_Rel20_Presenter_Edition.md
 │   ├── AI_ML_LTM_Handover_Context.md
 │   ├── AI_ML_Mobility.md
 │   └── AUDIT_38745_TRACEABILITY.md
@@ -92,8 +116,8 @@ python -m pip install -e .
 On Windows PowerShell, activate with `.venv\Scripts\Activate.ps1`.
 
 Installing in editable mode also compiles the optional `ltm_native` C++
-extension described below (a C++17 compiler is required; `pybind11` is
-installed automatically as a build dependency).
+extension described below (a C++17 compiler is required;
+`pybind11` is installed automatically as a build dependency).
 
 ## Test
 
@@ -149,11 +173,11 @@ is the ergonomic wrapper around the trajectory/recommender domain model
 (`MobilityObservation`, `TrajectoryWindow`, `LtmRecommender`,
 `FeedbackRecord`, `ModelPlacement`, `CandidateRecommendation`); its plain
 dataclasses validate and aggregate data even without the compiled extension,
-while `LtmRecommender` requires it. Both wrappers raise a clear `ImportError`
-if the extension was never built. Python-level behavior (success, boundary,
-malformed input, feedback, and unavailable-extension cases) is covered by
-`tests/test_native_scorer.py` and `tests/test_mobility_context.py`, which
-exercise the compiled extension through these wrappers.
+while `LtmRecommender` requires it. Both wrappers raise a clear
+`ImportError` if the extension was never built. Python-level behavior (success,
+boundary, malformed input, feedback, and unavailable-extension cases) is
+covered by `tests/test_native_scorer.py` and `tests/test_mobility_context.py`,
+which exercise the compiled extension through these wrappers.
 
 ```sh
 # Build and use from Python (also done by `pip install -e .`):
