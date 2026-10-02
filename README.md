@@ -1,16 +1,18 @@
-# AI-Assisted LTM: standards context and local experiment
+# AI-Assisted LTM
 
-This repository keeps the Release 20 standards study separate from a small,
-executable AI/ML experiment. The experiment is not a 3GPP implementation and
-does not control radio procedures.
+This repository brings together Release 20 standards-study context for
+AI-assisted LTM and a separate, runnable software experiment using synthetic
+data. The experiment provides advisory candidate scoring; it is not a 3GPP
+implementation and does not implement or control radio procedures.
 
-## Standards status
+## Standards context
 
 The source is [3GPP TR 38.745 V20.0.0 (March 2026)](standards/references/38745-k00.pdf).
 It is a study report, not an implementation specification: the cover states
-that it has not been approved for implementation. Its clause 5 recommends
-multi-hop UE trajectory, AI/ML-assisted intra-CU LTM and AI/ML-assisted
-inter-CU LTM for the Rel-20 normative phase.
+that it has not been approved for implementation. Clause 5 identifies
+multi-hop UE trajectory, AI/ML-assisted intra-CU LTM, and AI/ML-assisted
+inter-CU LTM as recommendations for Rel-20 normative work; this is standards
+context, not a requirement implemented by this repository.
 
 The report studies possible model placements, inputs/outputs/feedback and
 potential F1/Xn impacts (clauses 4.1–4.3). It does not specify numeric HIT
@@ -63,6 +65,7 @@ marp docs/AI_Assisted_LTM_Rel20_Presenter_Edition.md \\
 │       ├── 38321-j40_MAC Spec.pdf
 │       ├── 38745-k00.pdf
 │       ├── AI_ML_LTM_Handover_Analysis.pdf
+│       ├── Evolution_of_Layer1Layer2-Triggered_Mobility_in_5G.pdf
 │       └── reducing-handover-interruption-l1l2-triggered-mobility.pdf
 ├── native/
 │   ├── CMakeLists.txt
@@ -105,7 +108,7 @@ choices, not standardized inputs or evidence of radio performance.
 ## Setup
 
 Python 3.10 or newer is required. The runtime uses only the Python standard
-library; setuptools is only used as the package build backend.
+library. The package build uses setuptools and pybind11.
 
 ```sh
 python -m venv .venv
@@ -115,9 +118,9 @@ python -m pip install -e .
 
 On Windows PowerShell, activate with `.venv\Scripts\Activate.ps1`.
 
-Installing in editable mode also compiles the optional `ltm_native` C++
-extension described below (a C++17 compiler is required;
-`pybind11` is installed automatically as a build dependency).
+Installing in editable mode also compiles the `ltm_native` C++ extension
+described below (a C++17 compiler is required; `pybind11` is installed
+automatically as a build dependency).
 
 ## Test
 
@@ -166,18 +169,16 @@ native/
     └── test_trajectory.cpp     # native C++ tests for the domain model
 ```
 
-`src/ltm_agent/native_scorer.py` is the Python wrapper around
-`HandoverScorer`: it imports `ltm_native` and exposes
+`src/ltm_agent/native_scorer.py` wraps `HandoverScorer` and exposes
 `native_recommend(features, threshold=0.5)`. `src/ltm_agent/mobility_context.py`
-is the ergonomic wrapper around the trajectory/recommender domain model
-(`MobilityObservation`, `TrajectoryWindow`, `LtmRecommender`,
-`FeedbackRecord`, `ModelPlacement`, `CandidateRecommendation`); its plain
-dataclasses validate and aggregate data even without the compiled extension,
-while `LtmRecommender` requires it. Both wrappers raise a clear
-`ImportError` if the extension was never built. Python-level behavior (success,
-boundary, malformed input, feedback, and unavailable-extension cases) is
-covered by `tests/test_native_scorer.py` and `tests/test_mobility_context.py`,
-which exercise the compiled extension through these wrappers.
+wraps the trajectory/recommender domain model (`MobilityObservation`,
+`TrajectoryWindow`, `LtmRecommender`, `FeedbackRecord`, `ModelPlacement`,
+`CandidateRecommendation`). Its plain dataclasses validate and aggregate data
+without the extension; calling the native scorer or using `LtmRecommender`
+requires the extension and raises a clear `ImportError` if it is unavailable.
+Python-level success, boundary, malformed-input, feedback, and
+unavailable-extension behavior is covered by `tests/test_native_scorer.py`
+and `tests/test_mobility_context.py`.
 
 ```sh
 # Build and use from Python (also done by `pip install -e .`):
