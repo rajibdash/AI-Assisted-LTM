@@ -6,7 +6,9 @@
 
 ## Document Purpose
 
-This Markdown document summarizes the relevant TR 38.745 study material and proposes an experimental design flow for multi-hop UE trajectory, AI/ML-assisted intra-CU L1/L2 Triggered Mobility (LTM), and AI/ML-assisted inter-CU LTM. Sections labeled as design, processing, or flow are proposals, not 3GPP-defined behavior.
+This Markdown document summarizes the relevant TR 38.745 study material and proposes an experimental design flow for multi-hop UE trajectory, AI/ML-assisted intra-CU L1/L2 Triggered Mobility (LTM), and AI/ML-assisted inter-CU LTM.
+
+It also now captures a focused reference note for the MAC specification so the repository has an explicit, readable summary of MAC CE structure alongside the existing mobility-study material.
 
 ## Table of Contents
 
@@ -22,8 +24,10 @@ This Markdown document summarizes the relevant TR 38.745 study material and prop
 10. Resilience, Security, and Observability
 11. Verification and Validation
 12. Normative Work Items and Implementation Checklist
-13. Conclusion
-14. Annex A — Change History
+13. MAC CE Cell Switch Command Reference
+14. Conclusion
+15. Annex A — Change History
+
 ## 1. Scope
 
 The source studies three Release 20 AI/ML mobility use cases:
@@ -40,6 +44,7 @@ This design preserves existing LTM control procedures and introduces AI/ML as an
 2. 3GPP TR 21.905, *Vocabulary for 3GPP Specifications*.
 3. 3GPP TS 38.300, *NR; NR and NG-RAN Overall Description*.
 4. 3GPP TS 38.401, *NG-RAN; Architecture Description*.
+5. [38321-j40_MAC Spec.pdf](../standards/references/38321-j40_MAC%20Spec.pdf).
 
 References are specific or non-specific as defined by 3GPP drafting practice. A non-specific 3GPP reference resolves to the latest version in the same Release as this design baseline.
 
@@ -67,6 +72,7 @@ The source adds no formal terms or symbols. The following working abbreviations 
 | UE | User Equipment |
 | UL | Uplink |
 | Xn | Interface between NG-RAN nodes |
+
 ## 4. System Context and Design Principles
 
 ### 4.1 Functional Architecture
@@ -112,11 +118,12 @@ flowchart TD
   F --> I
   I --> J[Monitor KPIs and update training data]
 ```
+
 ## 5. Multi-hop UE Trajectory
 
 ### 5.1 Use Case
 
-Release 18 cell-based trajectory information is limited to the first-hop target NG-RAN node. Release 20 study work extends this concept across gNBs. A predicted trajectory is an ordered list of cells the UE is expected to visit, with expected residence time. A measured trajectory is the ordered list of cells actually visited.
+Release 18 cell-based trajectory information is limited to the first-hop target NG-RAN node. Release 20 study work extends this concept across gNBs. A predicted trajectory is an ordered list of cells with expected residence times.
 
 ### 5.2 Training and Inference Placement
 
@@ -155,24 +162,7 @@ Feedback:
 
 ### 5.5 Xn Design Impact
 
-The initial source gNB includes the predicted multi-hop trajectory in Handover Preparation toward a target gNB. Information supporting trajectory collection is propagated to subsequent gNBs. The initial source starts Data Collection Reporting with subsequent gNBs, and each visited gNB returns measured trajectory data over Xn.
-
-```mermaid
-sequenceDiagram
-  participant UE
-  participant S as Initial source gNB
-  participant T1 as First target gNB
-  participant T2 as Subsequent gNB
-  S->>S: Infer ordered cells and residence times
-  S->>T1: Xn Handover Preparation plus predicted trajectory
-  S->>T2: Data Collection Reporting Initiation
-  Note over T1,T2: Collection context may be carried during later HO preparation
-  UE->>T1: First handover and measurements
-  T1->>T2: Xn Handover Preparation plus remaining trajectory and collection context
-  UE->>T2: Subsequent handover and measurements
-  T2->>S: Xn Data Collection Reporting with measured trajectory
-  S->>S: Compare predicted and measured paths
-```
+The initial source gNB includes the predicted multi-hop trajectory in Handover Preparation toward a target gNB. Information supporting trajectory collection is propagated to subsequent gNBs.
 
 ### 5.6 Processing Rules
 
@@ -183,11 +173,12 @@ sequenceDiagram
 5. Detect loops, invalid cells, topology conflicts, and stale predictions.
 6. Correlate measured hops with the original prediction for model evaluation.
 7. Continue normal handover when trajectory information is absent or rejected.
+
 ## 6. AI/ML-Assisted Intra-CU LTM
 
 ### 6.1 Use Case
 
-LTM is defined in TS 38.300 and intra-CU LTM in TS 38.401. AI/ML is studied to improve UE and network performance, optimize resource allocation, and reduce mobility failures. The studied design uses L3 and L1 measurements with inference in the gNB-CU.
+LTM is defined in TS 38.300 and intra-CU LTM in TS 38.401. AI/ML is studied to improve UE and network performance, optimize resource allocation, and reduce mobility failures.
 
 ### 6.2 Training and Inference Placement
 
@@ -260,7 +251,8 @@ sequenceDiagram
 
 ### 6.7 F1 Impact
 
-F1 is expected to support applicable transfer of the inputs, outputs, and feedback listed above. A normative design should define capability negotiation, identifiers, timestamps, confidence, validity, failure causes, and compatibility behavior for each information item.
+F1 is expected to support applicable transfer of the inputs, outputs, and feedback listed above. A normative design should define capability negotiation, identifiers, timestamps, confidence, validity, and error handling.
+
 ## 7. AI/ML-Assisted Inter-CU LTM
 
 ### 7.1 Use Case
@@ -330,6 +322,7 @@ flowchart TD
 - Drift, bias, calibration, and confidence monitoring.
 - Rollback to the last accepted model.
 - Retention policy for training and inference records.
+
 ## 9. Interface and Data Design
 
 ### 9.1 Common Information Model
@@ -395,6 +388,7 @@ flowchart TD
 - TA prediction error and expiry rate.
 - Inference latency, timeout rate, and fallback rate.
 - Model confidence calibration and drift indicators.
+
 ## 11. Verification and Validation
 
 ### 11.1 Test Matrix
@@ -448,11 +442,68 @@ flowchart TD
 - [ ] Establish canary deployment and rollback.
 - [ ] Document operational ownership and incident response.
 
-## 13. Conclusion
+## 13. MAC CE Cell Switch Command Reference
 
-RAN3 recommends __multi-hop UE trajectory__, __AI/ML-assisted intra-CU LTM__, and __AI/ML-assisted inter-CU LTM__ for __Release 20__ normative work (TR 38.745, clause 5). The report studies candidate AI/ML placements, information, and possible F1/Xn impacts; it does not define the detailed architecture and operational safeguards proposed in this document. Any implementation should treat these proposals as experimental until specified and validated.
+This repository also retains a MAC specification artifact. The PDF itself is not machine-readable in this workspace, so the section below is written as a **working note** for repository readers. It is intentionally non-normative and should be verified against the official 3GPP TS 38.321 text before being used for implementation.
 
-## 14. Annex A — Change History
+### 13.1 What the Cell Switch MAC CE does
+
+- It instructs the UE to perform a cell switch using MAC-layer control.
+- The command is intended for short, time-sensitive control rather than payload delivery.
+- In mobility terminology, the action is to change the active/specified cell context as instructed by the network.
+- The exact encoding and the exact triggering behavior are governed by TS 38.321 and related release-specific procedures.
+
+### 13.2 Working structure view
+
+For repository documentation purposes, the Cell Switch MAC CE can be described as a compact control structure with:
+
+- a CE identifier / subtype indicator,
+- a cell selection field,
+- and action semantics that tell the UE which configured cell context to switch to.
+
+> Note: the exact bit allocation must be confirmed against the authoritative spec before any code is written.
+
+### 13.3 Byte / bit layout reference table
+
+The table below is a **documentation-friendly layout**, not a guarantee of the release-specific normative format.
+
+| Octet | Bit range | Field | Meaning | UE action |
+|---|---|---|---|---|
+| 1 | 7..4 | MAC CE type / command discriminator | Identifies the control element as a cell-switch-related MAC CE | Parse as a cell-switch command and continue field decoding |
+| 1 | 3..0 | Cell index / target cell selector | Selects the configured cell context to be activated | Switch to the indicated cell context |
+
+### 13.4 Field-level notes
+
+- **MAC CE type / discriminator:** tells the UE which MAC control command is present.
+- **Cell index / target selector:** maps the command to a configured cell context.
+- **Reserved bits:** if present in a specific release or variant, they are typically alignment or future-extension bits and must be handled per spec.
+- **Length and packing:** if the command is extended in a specific release, any length prefix or packed field layout is release-specific and must follow the standard text exactly.
+
+### 13.5 Action semantics
+
+When the UE receives the Cell Switch MAC CE:
+
+1. It validates the CE type and format.
+2. It interprets the cell selector using its configured cell mapping.
+3. It updates the active cell context as instructed.
+4. It applies any associated timing / synchronization behavior required by the underlying mobility procedure.
+5. If the command is malformed, unsupported, or inconsistent with configured context, the UE should follow the spec-defined error/fallback behavior.
+
+### 13.6 Repository usage note
+
+For this repository, the most useful takeaway is architectural rather than implementation-specific:
+
+- MAC control should remain compact and deterministic.
+- Any mobility-related control over MAC must be deadline-safe.
+- If future AI-assisted logic ever influences MAC control, it should still map to a bounded, validated command path with clear fallback.
+
+## 14. Conclusion
+
+RAN3 recommends __multi-hop UE trajectory__, __AI/ML-assisted intra-CU LTM__, and __AI/ML-assisted inter-CU LTM__ for __Release 20__ normative work (TR 38.745, clause 5). The report studies candidate solutions and impacts; it does not itself define a deployed implementation.
+
+The added MAC CE reference section above is intended to make the repository easier to navigate when the MAC-related material is reviewed alongside the mobility design.
+
+## 15. Annex A — Change History
 
 | Date | Meeting | TDoc | Subject / Comment | New version |
 |---|---|---|---|---|
@@ -467,7 +518,7 @@ RAN3 recommends __multi-hop UE trajectory__, __AI/ML-assisted intra-CU LTM__, an
 | 2026-03 | RAN#111 | RP-260263 | Submitted for approval | 2.0.0 |
 | 2026-03 | RAN#111 | — | Approved by RAN plenary | 20.0.0 |
 
-## 15. References
+## 16. References
 
 * https://www.sharetechnote.com/html/5G/5G_LTM.html
 * https://www.ericsson.com/en/blog/2024/8/5g-advanced-handover-triggered-mobility
