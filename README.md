@@ -5,6 +5,9 @@ AI-assisted LTM and a separate, runnable software experiment using synthetic
 data. The experiment provides advisory candidate scoring; it is not a 3GPP
 implementation and does not implement or control radio procedures.
 
+# Viavi in IMC 2026: Showcased
+Layer 2 (Data Link / MAC Layer) AI Models for L1/L2 Triggered Mobility (LTM) Optimization: Predictive models that streamline cell handovers based on physical layer RSRP measurements, minimizing latency for mission-critical applications.
+
 ## Standards context
 
 The source is [3GPP TR 38.745 V20.0.0 (March 2026)](standards/references/38745-k00.pdf).
