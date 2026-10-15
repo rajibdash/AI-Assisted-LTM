@@ -119,23 +119,23 @@ Walk left to right. Measurements and scheduler/PHY statistics are collected, sco
 # 5. Condensed Rel-20 Architecture
 
 ```text
-+------------------+       RRC / RAN signaling       +----------------------+
++------------------+       RRC / RAN signaling        +-----------------------+
 | UE               | <------------------------------> | Source CU / L3        |
 | L1 / L2 / L3     |                                  | Mobility Controller   |
-+---------+--------+                                  +----------+-----------+
++---------+--------+                                  +----------+------------+
           ^                                                      |
           | RF, PHY, MAC, UPC measurements                       | Inference req/resp
           |                                                      v
 +---------+--------+                                  +----------------------+
-| DU / L1 / MAC /  | <------ feature snapshots ------> | AI/ML Candidate Svc  |
+| DU / L1 / MAC /  | <------ feature snapshots ------> | AI/ML Candidate Svc |
 | UPC schedulers   |                                  | rank + confidence    |
 +------------------+                                  +----------+-----------+
                                                                   |
                                                                   v
-                                                     +------------------------+
-                                                     | Prep Orchestrator       |
-                                                     | Top-1 / Top-K / fallback|
-                                                     +------------------------+
+                                                     +--------------------------+
+                                                     | Prep Orchestrator        |
+                                                     | Top-1 / Top-K / fallback |
+                                                     +--------------------------+
 ```
 
 ---
@@ -240,20 +240,20 @@ This is the high-confidence fast path. Apply deadlines to inference and preparat
 
 ```text
 UE              Source CU/L3          AI/ML Service          Target Cell
-| MeasurementReport  |                     |                     |
-|------------------->|                     |                     |
-|                    | InferenceRequest   |                     |
-|                    |-------------------->|                     |
-|                    | InferenceResponse  |                     |
-|                    |<--------------------|                     |
+| MeasurementReport  |                     |                      |
+|------------------->|                     |                      |
+|                    | InferenceRequest    |                      |
+|                    |-------------------->|                      |
+|                    | InferenceResponse   |                      |
+|                    |<--------------------|                      |
 |                    | HO_Preparation_Req  |--------------------->|
 |                    | HO_Preparation_Ack  |<---------------------|
-| RRC_HO_Command     |                     |                     |
-|<-------------------|                     |                     |
+| RRC_HO_Command     |                     |                      |
+|<-------------------|                     |                      |
 | Access / Sync      |------------------------------------------->|
-|                    | HO_Complete / PathSwitch                  |
+|                    | HO_Complete / PathSwitch                   |
 |                    |<-------------------------------------------|
-|                    | Release source context                      |
+|                    | Release source context                     |
 ```
 
 ## Required timers
@@ -273,23 +273,23 @@ Explain that Top-K should normally be limited to a small K, such as two active c
 # 11. Signaling Flow B — Top-K Risk-Managed Path
 
 ```text
-UE              Source CU/L3          AI/ML Service       Candidate B/C
-| MeasurementReport  |                     |                    |
-|------------------->|                     |                    |
-|                    | InferenceRequest   |                    |
-|                    |-------------------->|                    |
-|                    | RankedList(K),Conf  |                    |
-|                    |<--------------------|                    |
-|                    | PrepReq(B) ------------------------------>|
-|                    | PrepReq(C) ------------------------------>|
-|                    | <--------- PrepAck / Nack / Timeout       |
-|                    | select best ready candidate               |
-| RRC_HO_Command     |                     |                    |
-|<-------------------|                     |                    |
+UE              Source CU/L3          AI/ML Service        Candidate B/C
+| MeasurementReport  |                     |                      |
+|------------------->|                     |                      |
+|                    | InferenceRequest    |                      |
+|                    |-------------------->|                      |
+|                    | RankedList(K),Conf  |                      |
+|                    |<--------------------|                      |
+|                    | PrepReq(B) ------------------------------->|
+|                    | PrepReq(C) ------------------------------->|
+|                    | <--------- PrepAck / Nack / Timeout        |
+|                    | select best ready candidate                |
+| RRC_HO_Command     |                     |                      |
+|<-------------------|                     |                      |
 | Access / Sync ------------------------------------------------->|
 |                    | HO_Complete / PathSwitch                   |
-|                    |<------------------------------------------------|
-|                    | cleanup non-selected contexts               |
+|                    |<-------------------------------------------|
+|                    | cleanup non-selected contexts              |
 ```
 
 ## Guardrails
