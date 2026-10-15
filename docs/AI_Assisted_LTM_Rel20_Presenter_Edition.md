@@ -127,7 +127,7 @@ Walk left to right. Measurements and scheduler/PHY statistics are collected, sco
           | RF, PHY, MAC, UPC measurements                       | Inference req/resp
           |                                                      v
 +---------+--------+                                  +----------------------+
-| DU / L1 / MAC /  | <------ feature snapshots ------> | AI/ML Candidate Svc |
+| DU / L1 / MAC /  | <------ feature snapshots ------>| AI/ML Candidate Svc  |
 | UPC schedulers   |                                  | rank + confidence    |
 +------------------+                                  +----------+-----------+
                                                                   |
